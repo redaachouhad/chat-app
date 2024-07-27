@@ -219,7 +219,6 @@ export const getAllMessages = async (item: any) => {
 
 export const sendingMessageWithPusher = async (savedMessage: Message) => {
   try {
-    console.log(savedMessage);
     const response = await fetch("/api/pusher", {
       method: "POST",
       headers: {

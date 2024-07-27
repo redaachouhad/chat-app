@@ -124,6 +124,8 @@ function OneChat({ selectedFriend }: { selectedFriend: Friends }) {
     setBooleanHeight(!booleanHeight);
     setBooleanScroll(!booleanScroll);
     scrollToBottom();
+    setSpinSending(false);
+    return;
   };
 
   const onChangeMessageOnly = (e: ChangeEvent<HTMLTextAreaElement>) => {
