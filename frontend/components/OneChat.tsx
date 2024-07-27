@@ -15,6 +15,7 @@ import pusher from "@ext/pusher";
 import { useSession } from "next-auth/react";
 import { ChangeEvent, MouseEvent, useEffect, useRef, useState } from "react";
 import Avatar from "react-avatar";
+import { ImSpinner9 } from "react-icons/im";
 import { IoSend } from "react-icons/io5";
 import { toast } from "react-toastify";
 import imageBackground from "./../public/backgroundChat.webp";
@@ -31,6 +32,7 @@ function OneChat({ selectedFriend }: { selectedFriend: Friends }) {
   const listOfMessages = useAppSelector((state) => state.listOfMessages.value);
   const [booleanHeight, setBooleanHeight] = useState<boolean>(false);
   const [booleanScroll, setBooleanScroll] = useState<boolean>(false);
+  const [spinSending, setSpinSending] = useState<boolean>(false);
 
   useEffect(() => {
     if ((session as any)?.idUser && (session as any)?.name) {
@@ -68,6 +70,7 @@ function OneChat({ selectedFriend }: { selectedFriend: Friends }) {
 
   const onClickSendMessage = async (e: MouseEvent<HTMLDivElement>) => {
     e.preventDefault();
+    setSpinSending(true);
     const messageToSend = {
       idSender: userId,
       usernameSender: userSender,
@@ -80,16 +83,36 @@ function OneChat({ selectedFriend }: { selectedFriend: Friends }) {
       message: messageOnly,
     };
 
-    if (messageToSend.idReceiver.trim() === "") return;
-    if (messageToSend.idSender.trim() === "") return;
-    if (messageToSend.message.trim() === "") return;
-    if (messageToSend.usernameReceiver.trim() === "") return;
-    if (messageToSend.usernameSender.trim() === "") return;
+    if (messageToSend.idReceiver.trim() === "") {
+      toast.error("Error in sending message");
+      setSpinSending(false);
+      return;
+    }
+    if (messageToSend.idSender.trim() === "") {
+      toast.error("Error in sending message");
+      setSpinSending(false);
+      return;
+    }
+    if (messageToSend.message.trim() === "") {
+      toast.error("Message should not be empty");
+      setSpinSending(false);
+      return;
+    }
+    if (messageToSend.usernameReceiver.trim() === "") {
+      toast.error("Error in sending message");
+      setSpinSending(false);
+      return;
+    }
+    if (messageToSend.usernameSender.trim() === "") {
+      toast.error("Error in sending message");
+      setSpinSending(false);
+      return;
+    }
     const savedMessage: Message = (await sendMessageApi(
       messageToSend
     )) as Message;
 
-    sendingMessageWithPusher(savedMessage);
+    await sendingMessageWithPusher(savedMessage);
 
     const listOfMessages = await getAllMessages({
       id1: userId,
@@ -166,112 +189,6 @@ function OneChat({ selectedFriend }: { selectedFriend: Friends }) {
       pusher.unsubscribe("my-channel");
     };
   }, [userId, selectedFriend]);
-
-  // useEffect(() => {
-  //   // var channel = pusher.subscribe("my-channel");
-  //   const handleEvent = async (data: Message) => {
-  //     if (
-  //       (data.idReceiver === selectedFriend.id1 &&
-  //         data.idSender === selectedFriend.id2) ||
-  //       (data.idReceiver === selectedFriend.id2 &&
-  //         data.idSender === selectedFriend.id1)
-  //     ) {
-  //       const messagat = await getAllMessages({
-  //         id1: userId,
-  //         id2:
-  //           selectedFriend.id1 == userId
-  //             ? selectedFriend.id2
-  //             : selectedFriend.id1,
-  //       });
-  //       dispatch(setListOfMessages(messagat));
-  //     }
-  //     toast(
-  //       <div className="flex flex-col justify-center text-black gap-2">
-  //         <div className="flex flex-row justify-start items-center gap-2">
-  //           <Avatar
-  //             src={
-  //               selectedFriend.id1 == userId
-  //                 ? selectedFriend.image2
-  //                 : selectedFriend.image1
-  //             }
-  //             name={data.usernameReceiver}
-  //             size="40"
-  //             round={true}
-  //           />
-  //           <div className="flex flex-col">
-  //             <p className="font-bold text-md">{data.usernameSender}</p>
-  //             <span className="text-xs font-medium">
-  //               {formatTimestamp(String(data?.createdAt))}
-  //             </span>
-  //           </div>
-  //         </div>
-  //         <p>{data.message}</p>
-  //       </div>
-  //     );
-  //   };
-
-  //   const channel = "private-message-" + userId;
-  //   console.log("11111111");
-  //   console.log(selectedFriend.id1, selectedFriend.id2);
-  //   console.log("22222222");
-  //   const pubnubHandleFunction = async (data: Message) => {
-  //     // handleEvent(event.message as Message);
-  //     const currentSelectedFriend = selectedFriendRef.current;
-
-  //     if (
-  //       (data.idReceiver === currentSelectedFriend.id1 &&
-  //         data.idSender === currentSelectedFriend.id2) ||
-  //       (data.idReceiver === currentSelectedFriend.id2 &&
-  //         data.idSender === currentSelectedFriend.id1)
-  //     ) {
-  //       // console.log("3333333333");
-  //       // console.log(selectedFriend.id1, selectedFriend.id2);
-  //       // console.log("4444444444");
-  //       // console.log(data);
-  //       toast(
-  //         <div className="flex flex-col justify-center text-black gap-2">
-  //           <div className="flex flex-row justify-start items-center gap-2">
-  //             <Avatar
-  //               src={
-  //                 selectedFriend.id1 == userId
-  //                   ? selectedFriend.image2
-  //                   : selectedFriend.image1
-  //               }
-  //               name={data.usernameReceiver}
-  //               size="40"
-  //               round={true}
-  //             />
-  //             <div className="flex flex-col">
-  //               <p className="font-bold text-md">{data.usernameSender}</p>
-  //               <span className="text-xs font-medium">
-  //                 {formatTimestamp(String(data?.createdAt))}
-  //               </span>
-  //             </div>
-  //           </div>
-  //           <p>{data.message}</p>
-  //         </div>
-  //       );
-  //     }
-  //   };
-
-  //   (pubnub as any).subscribe({ channels: [channel] });
-  //   pubnub.addListener({
-  //     message: async (event: any) => {
-  //       // handleEvent(event.message as Message);
-  //       await pubnubHandleFunction(event.message as Message);
-  //     },
-  //   });
-
-  //   // Cleanup function
-  //   return () => {
-  //     pubnub.unsubscribe({ channels: [channel] });
-  //     pubnub.removeListener({
-  //       message: async (event: any) => {
-  //         await pubnubHandleFunction(event.message as Message);
-  //       },
-  //     });
-  //   };
-  // }, [userId]);
 
   return (
     <div
@@ -367,15 +284,22 @@ function OneChat({ selectedFriend }: { selectedFriend: Friends }) {
             id=""
             ref={textareaRef}
             onChange={(e) => onChangeMessageOnly(e)}
+            disabled={spinSending}
             value={messageOnly}
             className="w-full p-2 bg-[#2d3f4a] outline-none rounded-md text-white text-sm max-h-72 overflow-y-auto resize-none"
           />
-          <div
-            onClick={onClickSendMessage}
-            className="text-[rgb(132,198,178)] cursor-pointer"
-          >
-            <IoSend size={25} />
-          </div>
+          {spinSending ? (
+            <div className="text-white text-3xl animate-spin">
+              <ImSpinner9 />
+            </div>
+          ) : (
+            <div
+              onClick={onClickSendMessage}
+              className="text-[rgb(132,198,178)] cursor-pointer"
+            >
+              <IoSend size={25} />
+            </div>
+          )}
         </div>
       </div>
     </div>
