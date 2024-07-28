@@ -1,5 +1,6 @@
 "use client";
 
+import { formatTimestamp } from "@ext/lib/dateFormatter";
 import { setListOfMessages } from "@ext/lib/redux/features/listOfMessagesSlice";
 import { setSelectedFriend } from "@ext/lib/redux/features/selectedFriendSlice";
 import { useAppDispatch, useAppSelector } from "@ext/lib/redux/hooks";
@@ -35,9 +36,17 @@ function OneFriendChat({ item, userId }: { item: Friends; userId: string }) {
     >
       <div>
         <Avatar
-          src={item.id1 === userId ? item.image2 : item.image1}
-          name={item.id1 === userId ? item.username2 : item.username1}
-          size="40"
+          src={
+            item.id1 == userId
+              ? (item.image2 as string)
+              : (item.image1 as string)
+          }
+          name={
+            item.id1 == userId
+              ? (item.username2 as string)
+              : (item.username1 as string)
+          }
+          size="45"
           round={true}
         />
       </div>
@@ -46,7 +55,12 @@ function OneFriendChat({ item, userId }: { item: Friends; userId: string }) {
           {item.id1 === userId ? item.username2 : item.username1}
         </p>
         <span className="overflow-hidden truncate text-xs font-light ">
-          {"hjguydzbuin niudznkn jnn"?.slice(0, 20) + " ..."}
+          {(item?.lastMessage as string).length < 12
+            ? item.lastMessage
+            : item.lastMessage?.slice(0, 12) + " ..."}
+        </span>
+        <span className="overflow-hidden truncate text-xs font-light ">
+          {formatTimestamp(String(item.updatedAt))}
         </span>
       </div>
     </div>

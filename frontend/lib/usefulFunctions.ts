@@ -35,7 +35,7 @@ export const findPeople = async (id: string) => {
   }
 };
 
-export const sendInvitation = async (invitation: any) => {
+export const sendInvitation = async (invitation: Invitation) => {
   try {
     const response = await fetch(
       (process.env.NEXT_PUBLIC_URL_BACKEND as string) +
@@ -101,7 +101,6 @@ export const getReceiveInvitation = async (id: string) => {
         cache: "no-store",
       }
     );
-    console.log("rererer11");
     const data = await response.json();
     return data.message as Invitation[];
   } catch (error) {
@@ -191,7 +190,11 @@ export const sendMessageApi = async (item: any) => {
       }
     );
     const data = await response.json();
-    return data.success as Message;
+    console.log(data.listOfFriends as Friends[]);
+    return {
+      savedMessage: data.savedMessage as Message,
+      listOfFriendsApi: data.listOfFriends as Friends[],
+    };
   } catch (error) {
     console.log(error);
   }
@@ -219,12 +222,54 @@ export const getAllMessages = async (item: any) => {
 
 export const sendingMessageWithPusher = async (savedMessage: Message) => {
   try {
-    const response = await fetch("/api/pusher", {
+    const response = await fetch("/api/pusher/sendMessage", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(savedMessage),
+    });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const sendingInvitationWithPusher = async (invitation: Invitation) => {
+  try {
+    const response = await fetch("/api/pusher/sendInvitation", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(invitation),
+    });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const acceptInvitationWithPusher = async (invitation: Invitation) => {
+  try {
+    const response = await fetch("/api/pusher/acceptInvitation", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(invitation),
+    });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const refuseInvitationWithPusher = async (invitation: Invitation) => {
+  try {
+    const response = await fetch("/api/pusher/refuseInvitation", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(invitation),
     });
   } catch (error) {
     console.log(error);

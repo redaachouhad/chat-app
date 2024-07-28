@@ -11,7 +11,6 @@ import {
 } from "@ext/lib/usefulFunctions";
 
 import { formatTimestamp } from "@ext/lib/dateFormatter";
-import pusher from "@ext/pusher";
 import { useSession } from "next-auth/react";
 import { ChangeEvent, MouseEvent, useEffect, useRef, useState } from "react";
 import Avatar from "react-avatar";
@@ -108,9 +107,17 @@ function OneChat({ selectedFriend }: { selectedFriend: Friends }) {
       setSpinSending(false);
       return;
     }
-    const savedMessage: Message = (await sendMessageApi(
-      messageToSend
-    )) as Message;
+
+    const {
+      savedMessage,
+      listOfFriendsApi,
+    }: {
+      savedMessage: Message;
+      listOfFriendsApi: Friends[];
+    } = (await sendMessageApi(messageToSend)) as {
+      savedMessage: Message;
+      listOfFriendsApi: Friends[];
+    };
 
     await sendingMessageWithPusher(savedMessage);
 
@@ -120,6 +127,7 @@ function OneChat({ selectedFriend }: { selectedFriend: Friends }) {
         selectedFriend.id1 == userId ? selectedFriend.id2 : selectedFriend.id1,
     });
     dispatch(setListOfMessages(listOfMessages));
+    dispatch(setListOfFriends(listOfFriendsApi));
     setMessageOnly("");
     setBooleanHeight(!booleanHeight);
     setBooleanScroll(!booleanScroll);
@@ -142,55 +150,6 @@ function OneChat({ selectedFriend }: { selectedFriend: Friends }) {
   useEffect(() => {
     scrollToBottom();
   }, [booleanScroll, listOfMessages]);
-
-  useEffect(() => {
-    var channel = pusher.subscribe("my-channel");
-    const handleEvent = async (data: Message) => {
-      if (
-        (data.idReceiver === selectedFriend.id1 &&
-          data.idSender === selectedFriend.id2) ||
-        (data.idReceiver === selectedFriend.id2 &&
-          data.idSender === selectedFriend.id1)
-      ) {
-        const selectedMessages = await getAllMessages({
-          id1: userId,
-          id2:
-            selectedFriend.id1 == userId
-              ? selectedFriend.id2
-              : selectedFriend.id1,
-        });
-        dispatch(setListOfMessages(selectedMessages));
-      }
-      toast(
-        <div className="flex flex-col justify-center text-black gap-2">
-          <div className="flex flex-row justify-start items-center gap-2">
-            <Avatar
-              src={
-                selectedFriend.id1 == userId
-                  ? selectedFriend.image2
-                  : selectedFriend.image1
-              }
-              name={data.usernameReceiver}
-              size="40"
-              round={true}
-            />
-            <div className="flex flex-col">
-              <p className="font-bold text-md">{data.usernameSender}</p>
-              <span className="text-xs font-medium">
-                {formatTimestamp(String(data?.createdAt))}
-              </span>
-            </div>
-          </div>
-          <p>{data.message}</p>
-        </div>
-      );
-    };
-    channel.bind("private-message-" + userId, handleEvent);
-    return () => {
-      channel.unbind(userId);
-      pusher.unsubscribe("my-channel");
-    };
-  }, [userId, selectedFriend]);
 
   return (
     <div

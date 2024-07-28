@@ -1,6 +1,7 @@
 "use client";
 
 import { setListOfFriends } from "@ext/lib/redux/features/listOfFriendsSlice";
+import { setListOfPeople } from "@ext/lib/redux/features/listOfPeopleSlice";
 import { setListOfReceivedInvitation } from "@ext/lib/redux/features/listOfReceivedInvitationSlice";
 import { setListOfSentInvitation } from "@ext/lib/redux/features/listOfSentInvitationSlice";
 import { useAppDispatch, useAppSelector } from "@ext/lib/redux/hooks";
@@ -10,19 +11,13 @@ import {
   getReceiveInvitation,
   getSentInvitation,
 } from "@ext/lib/usefulFunctions";
+import pusher from "@ext/pusher";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
-import Avatar from "react-avatar";
-import {
-  FaArrowDown,
-  FaArrowRight,
-  FaArrowUp,
-  FaSearch,
-  FaUserPlus,
-} from "react-icons/fa";
+import { FaArrowDown, FaArrowUp, FaSearch, FaUserPlus } from "react-icons/fa";
 import { FaUsers } from "react-icons/fa6";
-import { ImCancelCircle } from "react-icons/im";
 import { MdInsertInvitation } from "react-icons/md";
+import { toast } from "react-toastify";
 import CardPeople from "./CardPeople";
 import CardReceivedInvitation from "./CardReceivedInvitation";
 import CardSentInvitation from "./CardSentInvitation";
@@ -35,7 +30,6 @@ function Invitation() {
   const [style2, setStyle2] = useState("");
   const [style3, setStyle3] = useState("");
 
-  const [listOfPeople, setListOfPeople] = useState<People[]>([]);
   const { data: session, status } = useSession();
   const dispatch = useAppDispatch();
   const [userId, setUserId] = useState("");
@@ -47,16 +41,21 @@ function Invitation() {
   });
 
   useEffect(() => {
-    if (session) {
+    if (session?.user) {
       setUserId((session as any)?.idUser);
       setUserMe({
-        id: (session as any)?.id,
+        id: (session as any)?.idUser,
         name: (session as any)?.name,
         email: (session as any)?.email,
         image: (session as any)?.image,
       });
     }
   }, [session]);
+
+  const listOfPeople: People[] = useAppSelector(
+    (state) => state.listOfPeople.value
+  );
+
   const listOfSentInvitations: Invitation[] = useAppSelector(
     (state) => state.listOfSentInvitation.value
   );
@@ -75,7 +74,7 @@ function Invitation() {
         const peoples: People[] = await findPeople(
           (session as any)?.idUser as string
         );
-        setListOfPeople(peoples);
+        dispatch(setListOfPeople(peoples));
       }
     };
     const fetchSentInvitation = async () => {
@@ -143,39 +142,51 @@ function Invitation() {
     }
   };
 
-  const fct = () => {
-    let lista = [];
-    for (let i = 0; i < 100; i++) {
-      lista.push(
-        <div className="text-white flex flex-row justify-between items-center gap-2 p-3 w-full lg:w-[60%] border-2 border-blue-500 rounded-lg">
-          <div className="flex flex-row items-center gap-2">
-            <Avatar
-              name="Reda Achouhad"
-              size="50"
-              textSizeRatio={1.75}
-              round={true}
-            />
-            <p className="text-xl text-center">Reda Achouhad</p>
+  useEffect(() => {
+    var channel = pusher.subscribe("my-channel");
+    const handleEvent = async (data: Invitation) => {
+      toast(
+        <div className="flex flex-col justify-center text-black gap-2">
+          <div className="flex flex-row justify-start items-center gap-2">
+            <div className="flex flex-col">
+              <p className="font-bold text-md">{data.usernameSender}</p>
+            </div>
           </div>
-
-          <div className="flex flex-col gap-2">
-            <button
-              disabled={true}
-              className="flex flex-row items-center gap-2 bg-blue-500 p-1.5 rounded-md text-sm"
-            >
-              <p>Invitation sent </p>
-              <FaArrowRight size={20} />
-            </button>
-            <button className="flex flex-row items-center gap-2 bg-red-500 p-1.5 rounded-md text-sm">
-              <p>Cancel invitation </p>
-              <ImCancelCircle size={20} />
-            </button>
-          </div>
+          <p>has sent you an invitation</p>
         </div>
       );
-    }
-    return lista;
-  };
+      const listOfPeople = await findPeople(userId);
+      dispatch(setListOfPeople(listOfPeople));
+    };
+    channel.bind("invitation-" + userId, handleEvent);
+    return () => {
+      channel.unbind("invitation-" + userId);
+      pusher.unsubscribe("my-channel");
+    };
+  }, [userId]);
+
+  useEffect(() => {
+    var channel = pusher.subscribe("my-channel");
+    const handleEvent = async (data: Invitation) => {
+      toast(
+        <div className="flex flex-col justify-center text-black gap-2">
+          <div className="flex flex-row justify-start items-center gap-2">
+            <div className="flex flex-col">
+              <p className="font-bold text-md">{data.usernameSender}</p>
+            </div>
+          </div>
+          <p>has accepted your invitation</p>
+        </div>
+      );
+      const listOfPeople = await findPeople(userId);
+      dispatch(setListOfPeople(listOfPeople));
+    };
+    channel.bind("accept-invitation-" + userId, handleEvent);
+    return () => {
+      channel.unbind("accept-invitation-" + userId);
+      pusher.unsubscribe("my-channel");
+    };
+  }, [userId]);
 
   return (
     <div className="w-full h-full border border-gray-500 flex flex-col justify-start items-center bg-[rgb(8,19,38)] ">
@@ -307,10 +318,12 @@ function Invitation() {
             listOfPeople.map((other, index) => {
               return <CardPeople key={index} other={other} me={userMe} />;
             })}
+
           {activateButton === 2 &&
             listOfReceivedInvitations.map((item, index) => {
               return <CardReceivedInvitation key={index} item={item} />;
             })}
+
           {activateButton === 3 &&
             listOfSentInvitations.map((invitation, index) => {
               return <CardSentInvitation key={index} invitation={invitation} />;

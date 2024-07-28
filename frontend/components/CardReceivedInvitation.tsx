@@ -4,6 +4,7 @@ import { formatTimestamp } from "@ext/lib/dateFormatter";
 import { setListOfReceivedInvitation } from "@ext/lib/redux/features/listOfReceivedInvitationSlice";
 import { useAppDispatch } from "@ext/lib/redux/hooks";
 import {
+  acceptInvitationWithPusher,
   addFriends,
   deleteReceivedInvitation,
   getReceiveInvitation,
@@ -28,6 +29,7 @@ function CardReceivedInvitation({ item }: { item: Invitation }) {
 
   const onClickAcceptInvitation = async (e: MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
+    await acceptInvitationWithPusher(item);
     await addFriends(item);
     await deleteReceivedInvitation(item._id as string);
     const sentInvitations: Invitation[] = await getReceiveInvitation(

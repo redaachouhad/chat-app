@@ -1,8 +1,13 @@
 "use client";
 
+import { setListOfPeople } from "@ext/lib/redux/features/listOfPeopleSlice";
 import { setListOfSentInvitation } from "@ext/lib/redux/features/listOfSentInvitationSlice";
 import { useAppDispatch } from "@ext/lib/redux/hooks";
-import { sendInvitation } from "@ext/lib/usefulFunctions";
+import {
+  findPeople,
+  sendingInvitationWithPusher,
+  sendInvitation,
+} from "@ext/lib/usefulFunctions";
 import { MouseEvent } from "react";
 import Avatar from "react-avatar";
 import { RiUserAddFill } from "react-icons/ri";
@@ -11,7 +16,7 @@ function CardPeople({ other, me }: { other: People; me: any }) {
   const dispatch = useAppDispatch();
   const onClickSendInvitation = async (e: MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    const invitation = {
+    const invitation: Invitation = {
       idSender: me.id,
       usernameSender: me.name,
       emailSender: me.email,
@@ -23,6 +28,9 @@ function CardPeople({ other, me }: { other: People; me: any }) {
     };
     const sentInvitations: Invitation[] = await sendInvitation(invitation);
     dispatch(setListOfSentInvitation(sentInvitations));
+    await sendingInvitationWithPusher(invitation);
+    const listOfPeople = await findPeople(me.id);
+    dispatch(setListOfPeople(listOfPeople));
   };
 
   return (
