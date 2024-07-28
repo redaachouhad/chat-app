@@ -30,7 +30,7 @@ export const deleteSentInvitation = async (req, res) => {
     await Invitation.deleteOne({ _id: id });
     res.status(200).json({ message: "Sent invitation deleted" });
   } catch (error) {
-    res.status(500).json({ message: "error in deleting the invitation" });
+    res.status(500).json({ message: "Error in deleting the invitation" });
   }
 };
 

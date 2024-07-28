@@ -1,3 +1,4 @@
+import Friends from "../models/friends.js";
 import Message from "../models/message.js";
 
 export const sendMessage = async (req, res) => {
@@ -5,7 +6,30 @@ export const sendMessage = async (req, res) => {
   const createdMessage = new Message(data);
   try {
     const savedMessage = await createdMessage.save();
-    res.status(200).send({ success: savedMessage });
+    await Friends.updateOne(
+      {
+        $or: [
+          {
+            id1: savedMessage.idSender,
+            id2: savedMessage.idReceiver,
+          },
+          {
+            id2: savedMessage.idSender,
+            id1: savedMessage.idReceiver,
+          },
+        ],
+      },
+      {
+        $set: { lastMessage: savedMessage.message },
+      }
+    );
+    const listOfFriends = await Friends.find({
+      $or: [{ id1: savedMessage.idSender }, { id2: savedMessage.idSender }],
+    }).sort({ updatedAt: -1 });
+
+    res
+      .status(200)
+      .send({ savedMessage: savedMessage, listOfFriends: listOfFriends });
   } catch (error) {
     res.status(500).send({ message: "Error in sending message" });
   }
