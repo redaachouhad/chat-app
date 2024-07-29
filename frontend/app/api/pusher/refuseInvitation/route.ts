@@ -12,10 +12,9 @@ const pusher = new Pusher({
 export async function POST(req: NextRequest) {
   try {
     const data: Invitation = await req.json();
-    console.log("refuse-invitation-" + data.idReceiver);
     await pusher.trigger(
       "my-channel",
-      "refuse-invitation-" + data.idReceiver,
+      "refuse-invitation-" + data.idSender,
       data
     );
     return NextResponse.json({ message: "Message sent" });

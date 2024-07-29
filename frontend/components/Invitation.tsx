@@ -11,13 +11,11 @@ import {
   getReceiveInvitation,
   getSentInvitation,
 } from "@ext/lib/usefulFunctions";
-import pusher from "@ext/pusher";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { FaArrowDown, FaArrowUp, FaSearch, FaUserPlus } from "react-icons/fa";
 import { FaUsers } from "react-icons/fa6";
 import { MdInsertInvitation } from "react-icons/md";
-import { toast } from "react-toastify";
 import CardPeople from "./CardPeople";
 import CardReceivedInvitation from "./CardReceivedInvitation";
 import CardSentInvitation from "./CardSentInvitation";
@@ -141,52 +139,6 @@ function Invitation() {
       setStyle3("");
     }
   };
-
-  useEffect(() => {
-    var channel = pusher.subscribe("my-channel");
-    const handleEvent = async (data: Invitation) => {
-      toast(
-        <div className="flex flex-col justify-center text-black gap-2">
-          <div className="flex flex-row justify-start items-center gap-2">
-            <div className="flex flex-col">
-              <p className="font-bold text-md">{data.usernameSender}</p>
-            </div>
-          </div>
-          <p>has sent you an invitation</p>
-        </div>
-      );
-      const listOfPeople = await findPeople(userId);
-      dispatch(setListOfPeople(listOfPeople));
-    };
-    channel.bind("invitation-" + userId, handleEvent);
-    return () => {
-      channel.unbind("invitation-" + userId);
-      pusher.unsubscribe("my-channel");
-    };
-  }, [userId]);
-
-  useEffect(() => {
-    var channel = pusher.subscribe("my-channel");
-    const handleEvent = async (data: Invitation) => {
-      toast(
-        <div className="flex flex-col justify-center text-black gap-2">
-          <div className="flex flex-row justify-start items-center gap-2">
-            <div className="flex flex-col">
-              <p className="font-bold text-md">{data.usernameSender}</p>
-            </div>
-          </div>
-          <p>has accepted your invitation</p>
-        </div>
-      );
-      const listOfPeople = await findPeople(userId);
-      dispatch(setListOfPeople(listOfPeople));
-    };
-    channel.bind("accept-invitation-" + userId, handleEvent);
-    return () => {
-      channel.unbind("accept-invitation-" + userId);
-      pusher.unsubscribe("my-channel");
-    };
-  }, [userId]);
 
   return (
     <div className="w-full h-full border border-gray-500 flex flex-col justify-start items-center bg-[rgb(8,19,38)] ">

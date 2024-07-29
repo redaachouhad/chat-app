@@ -8,6 +8,7 @@ import {
   addFriends,
   deleteReceivedInvitation,
   getReceiveInvitation,
+  refuseInvitationWithPusher,
 } from "@ext/lib/usefulFunctions";
 import { MouseEvent } from "react";
 import Avatar from "react-avatar";
@@ -20,6 +21,7 @@ function CardReceivedInvitation({ item }: { item: Invitation }) {
     e: MouseEvent<HTMLButtonElement>
   ) => {
     e.preventDefault();
+    refuseInvitationWithPusher(item);
     await deleteReceivedInvitation(item._id as string);
     const sentInvitations: Invitation[] = await getReceiveInvitation(
       item.idReceiver as string

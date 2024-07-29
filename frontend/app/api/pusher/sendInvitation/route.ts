@@ -12,7 +12,6 @@ const pusher = new Pusher({
 export async function POST(req: NextRequest) {
   try {
     const data: Invitation = await req.json();
-    console.log("invitation-" + data.idReceiver);
     await pusher.trigger("my-channel", "invitation-" + data.idReceiver, data);
     return NextResponse.json({ message: "Message sent" });
   } catch (error) {
