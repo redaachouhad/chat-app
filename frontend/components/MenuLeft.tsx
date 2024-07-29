@@ -6,7 +6,6 @@ import { useEffect, useState } from "react";
 import Avatar from "react-avatar";
 import { BsPeopleFill } from "react-icons/bs";
 import { GrLogout } from "react-icons/gr";
-import { IoSettingsOutline } from "react-icons/io5";
 import { MdOutlineMessage } from "react-icons/md";
 
 function MenuLeft() {
@@ -52,10 +51,10 @@ function MenuLeft() {
       >
         <BsPeopleFill size={28} className="text-[rgba(255,255,255,0.4)]" />
       </div>
-      <br />
+      {/* <br />
       <div className="p-2 hover:bg-[rgba(255,255,255,0.1)] cursor-pointer rounded-full flex justify-center items-center">
         <IoSettingsOutline size={28} className="text-[rgba(255,255,255,0.4)]" />
-      </div>
+      </div> */}
       <br />
       <div
         onClick={async () => {
