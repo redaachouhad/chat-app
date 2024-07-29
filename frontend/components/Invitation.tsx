@@ -13,7 +13,7 @@ import {
 } from "@ext/lib/usefulFunctions";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
-import { FaArrowDown, FaArrowUp, FaSearch, FaUserPlus } from "react-icons/fa";
+import { FaArrowDown, FaArrowUp, FaUserPlus } from "react-icons/fa";
 import { FaUsers } from "react-icons/fa6";
 import { MdInsertInvitation } from "react-icons/md";
 import CardPeople from "./CardPeople";
@@ -80,16 +80,18 @@ function Invitation() {
         const sentInvitations: Invitation[] = await getSentInvitation(
           (session as any)?.idUser as string
         );
+
         dispatch(setListOfSentInvitation(sentInvitations));
       }
     };
 
     const fetchReceivedInvitation = async () => {
       if (session) {
-        const sentInvitations: Invitation[] = await getReceiveInvitation(
+        const receiveInvitations: Invitation[] = await getReceiveInvitation(
           (session as any)?.idUser as string
         );
-        dispatch(setListOfReceivedInvitation(sentInvitations));
+
+        dispatch(setListOfReceivedInvitation(receiveInvitations));
       }
     };
 
@@ -98,6 +100,7 @@ function Invitation() {
         const friends: Friends[] = await getFriends(
           (session as any)?.idUser as string
         );
+
         dispatch(setListOfFriends(friends));
       }
     };
@@ -154,7 +157,7 @@ function Invitation() {
             }}
             className={
               "w-full p-3 flex justify-center " +
-              (activateButton == 0
+              (activateButton == 0 || activateButton == 4
                 ? "bg-[rgb(8,19,38)]"
                 : "bg-[#197ab2] " + style0)
             }
@@ -162,11 +165,12 @@ function Invitation() {
             <div
               className={
                 "cursor-pointer w-fit text-center flex flex-row items-center justify-center gap-2 p-1 " +
-                (activateButton == 0
+                (activateButton == 0 || activateButton == 4
                   ? "border border-transparent border-b-white"
                   : "")
               }
             >
+              {" "}
               <FaUsers size={26} />
               <p> Your friends </p>
             </div>
@@ -192,6 +196,7 @@ function Invitation() {
               }
             >
               <FaUserPlus size={25} />
+
               <p>People</p>
             </div>
           </div>
@@ -216,6 +221,7 @@ function Invitation() {
               }
             >
               <FaArrowDown size={25} />
+
               <p>Received invitation</p>
             </div>
           </div>
@@ -240,6 +246,7 @@ function Invitation() {
               }
             >
               <FaArrowUp size={25} />
+
               <p> Sent invitation</p>
             </div>
           </div>
@@ -247,7 +254,7 @@ function Invitation() {
       </div>
 
       <br />
-      <div className="w-[90%] lg:w-[60%] flex justify-center">
+      {/* <div className="w-[90%] lg:w-[60%] flex justify-center">
         <div className="w-full flex flex-row items-center gap-2 bg-[rgba(255,255,255,0.1)] p-2 rounded-lg">
           <input
             type="text"
@@ -257,7 +264,7 @@ function Invitation() {
           <FaSearch size={25} className="text-white" />
         </div>
       </div>
-      <br />
+      <br /> */}
 
       <div className="w-full h-full overflow-y-scroll p-4 py-6 bg-[rgb(8,19,38)] flex flex-col items-center">
         <div className="w-full flex flex-col justify-center items-center gap-8">
