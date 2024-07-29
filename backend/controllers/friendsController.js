@@ -24,7 +24,9 @@ export const addFriends = async (req, res) => {
 export const getFriends = async (req, res) => {
   const { id } = req.params;
   try {
-    const friends = await Friends.find({ $or: [{ id1: id }, { id2: id }] });
+    const friends = await Friends.find({
+      $or: [{ id1: id }, { id2: id }],
+    }).sort({ updatedAt: -1 });
     res.status(200).json({ message: friends });
   } catch (error) {
     res.status(500).json({ message: "Error in finding friends" });
