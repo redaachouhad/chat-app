@@ -80,6 +80,14 @@ function OneChat({ selectedFriend }: { selectedFriend: Friends }) {
           ? selectedFriend.username2
           : selectedFriend.username1,
       message: messageOnly,
+      imageReceiver:
+        selectedFriend.id1 == userId
+          ? selectedFriend.image2
+          : selectedFriend.image1,
+      imageSender:
+        selectedFriend.id1 == userId
+          ? selectedFriend.image1
+          : selectedFriend.image2,
     };
 
     if (messageToSend.idReceiver.trim() === "") {

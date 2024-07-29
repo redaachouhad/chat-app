@@ -24,6 +24,12 @@ const messageSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    imageReceiver: {
+      type: String,
+    },
+    imageSender: {
+      type: String,
+    },
   },
   { timestamps: true }
 );

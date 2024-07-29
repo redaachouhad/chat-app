@@ -47,8 +47,10 @@ interface Message {
   _id?: string;
   idSender: string;
   usernameSender: string;
+  imageSender?: string;
   idReceiver: string;
   usernameReceiver: string;
+  imageReceiver?: string;
   message: string;
   createdAt?: Date;
   updatedAt?: Date;

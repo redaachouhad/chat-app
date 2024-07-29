@@ -71,11 +71,7 @@ export default function RootLayout({
         <div className="flex flex-col justify-center text-black gap-2">
           <div className="flex flex-row justify-start items-center gap-2">
             <Avatar
-              src={
-                selectedFriend.id1 == userId
-                  ? selectedFriend.image2
-                  : selectedFriend.image1
-              }
+              src={data.imageSender}
               name={data.usernameReceiver}
               size="40"
               round={true}
@@ -139,7 +135,7 @@ export default function RootLayout({
               <p className="font-bold text-md">{data.usernameReceiver}</p>
             </div>
           </div>
-          <p>has accepted your invitation and it is now your friend ✅</p>
+          <p>has accepted your invitation and become your friend ✅</p>
         </div>,
         {
           position: "top-center",
