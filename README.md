@@ -28,4 +28,10 @@ Chat App est une application de messagerie en temps réel, conçue pour permettr
 
 ## Pages of the application:
 
-![Alt text]("./image for readme/chat page.png")
+### Chat Page:
+
+![Chat Page](./image%20for%20readme/chat%20page.png)
+
+### Friends / People / Sents Invitations / Received Invitations Pages:
+
+![Your Friends](./image%20for%20readme/your%20friends.png)
